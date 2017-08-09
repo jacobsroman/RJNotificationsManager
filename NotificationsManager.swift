@@ -1,23 +1,32 @@
-//
 //  NotificationsManager.swift
-//  DLP-Core
-//
-//  Created by Ra Man on 27.07.17.
-//  Copyright © 2017 CEIT. All rights reserved.
-//
-
-import UIKit
+//  Created by jacobsroman on 27.07.17.
 
 
+/*
+ This is a sample Notification manager that can be used in any project
+ 
+ If you suggest some improvements - I'll be glad to expand this functionality
+ */
+
+import Foundation
+
+// MARL: - Protocols & extensions
+/*
+ Describe your own handlers with custom objects or ets.
+ */
 protocol CustomNotificationHandler: AnyObject {
     func handleCustomNotification(_ someString:String)
 }
 
-
+/*
+ Describe notification types
+ */
 enum Notifications: String, NotificationName {
     case CustomNotification
 }
 
+// Protocol, needed to implement Notification types
+// --
 protocol NotificationName {
     var name: Notification.Name { get }
 }
@@ -29,14 +38,20 @@ extension RawRepresentable where RawValue == String, Self: NotificationName {
         }
     }
 }
+// --
 
+// MARK: - Instance
+// Singletone instance that implements all the managering of posting/subscribing for notifications
 class NotificationsManager: NSObject {
     
     static let shared = NotificationsManager()
     
+    // This variable holds all subscribers for unsubscribing
     var observers = [Dictionary<String, AnyObject>]()
     
-    func isObserver(_ observer:AnyObject) -> Bool {
+    // Helpfull functions
+    // --
+    private func isObserver(_ observer:AnyObject) -> Bool {
         for obs in observers {
             if let theObs = obs["observer"] {
                 if theObs.isEqual(observer) {
@@ -47,7 +62,7 @@ class NotificationsManager: NSObject {
         return false
     }
     
-    func observerFor(subscriber:AnyObject) -> Dictionary<String, AnyObject>?{
+    private func observerFor(subscriber:AnyObject) -> Dictionary<String, AnyObject>?{
         for obs in observers {
             if let theSub = obs["subscriber"] {
                 if theSub.isEqual(subscriber) {
@@ -58,20 +73,22 @@ class NotificationsManager: NSObject {
         return nil
     }
     
-    func unsubscribeFromNotifications(subscriber:AnyObject) {
-        if let observer = self.observerFor(subscriber: subscriber) {
-            if let theObserver = observer["observer"] as? NSObjectProtocol {
-                NotificationCenter.default.removeObserver(theObserver)
-            }
-        }
-    }
-    
-    func addObserver(observer:AnyObject, subscriber:AnyObject) {
+    private func addObserver(observer:AnyObject, subscriber:AnyObject) {
         var observeDict = Dictionary<String, AnyObject>()
         observeDict["observer"] = observer
         observeDict["subscriber"] = subscriber
         if (!self.isObserver(observer)) {
             self.observers.append(observeDict)
+        }
+    }
+    // --
+    
+    // MARK: - Main functions
+    func unsubscribeFromNotifications(subscriber:AnyObject) {
+        if let observer = self.observerFor(subscriber: subscriber) {
+            if let theObserver = observer["observer"] as? NSObjectProtocol {
+                NotificationCenter.default.removeObserver(theObserver)
+            }
         }
     }
     
