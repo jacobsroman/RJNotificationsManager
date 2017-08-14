@@ -10,7 +10,7 @@
 
 import Foundation
 
-// MARL: - Protocols & extensions
+// MARK: - Protocols & extensions
 /*
  Describe your own handlers with custom objects or ets.
  */
